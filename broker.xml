@@ -1,0 +1,95 @@
+<?xml version='1.0'?>
+<!--
+Licensed to the Apache Software Foundation (ASF) under one
+or more contributor license agreements.  See the NOTICE file
+distributed with this work for additional information
+regarding copyright ownership.  The ASF licenses this file
+to you under the Apache License, Version 2.0 (the
+"License"); you may not use this file except in compliance
+with the License.  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing,
+software distributed under the License is distributed on an
+"AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+KIND, either express or implied.  See the License for the
+specific language governing permissions and limitations
+under the License.
+-->
+
+<configuration xmlns="urn:activemq"
+               xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+               xsi:schemaLocation="urn:activemq /schema/artemis-configuration.xsd">
+
+   <jms xmlns="urn:activemq:jms">
+
+	<queue name="DLQ"/>
+	<queue name="ExpiryQueue"/>
+
+   </jms>
+
+   <core xmlns="urn:activemq:core">
+
+      <name>novaccess</name>
+
+      <persistence-enabled>true</persistence-enabled>
+
+      <!-- this could be ASYNCIO or NIO -->
+      <journal-type>ASYNCIO</journal-type>
+
+      <paging-directory>./data/paging</paging-directory>
+
+      <bindings-directory>./data/bindings</bindings-directory>
+
+      <journal-directory>./data/journal</journal-directory>
+
+      <large-messages-directory>./data/large-messages</large-messages-directory>
+
+      <journal-min-files>2</journal-min-files>
+
+      <journal-pool-files>-1</journal-pool-files>
+
+      <!--
+       This value was determined through a calculation.
+       Your system could perform 1.68 writes per millisecond
+       on the current journal configuration.
+       That translates as a sync write every 596000 nanoseconds
+      -->
+      <journal-buffer-timeout>596000</journal-buffer-timeout>
+
+
+      <acceptors>
+		  
+         <!-- MQTT Acceptor -->
+		<acceptor name="mqtt">tcp://0.0.0.0:1883?protocols=MQTT</acceptor>
+		
+      </acceptors>
+
+
+      <security-settings>
+         <security-setting match="#">
+            <permission type="createNonDurableQueue" roles="iot"/>
+            <permission type="deleteNonDurableQueue" roles="iot"/>
+            <permission type="createDurableQueue" roles="iot"/>
+            <permission type="deleteDurableQueue" roles="iot"/>
+            <permission type="consume" roles="iot"/>
+            <permission type="send" roles="iot"/>
+            <!-- we need this otherwise ./artemis data imp wouldn't work -->
+            <permission type="manage" roles="iot"/>
+         </security-setting>
+      </security-settings>
+
+      <address-settings>
+         <!--default for catch all-->
+         <address-setting match="#">
+            <dead-letter-address>jms.queue.DLQ</dead-letter-address>
+            <expiry-address>jms.queue.ExpiryQueue</expiry-address>
+            <redelivery-delay>0</redelivery-delay>
+            <max-size-bytes>10485760</max-size-bytes>
+            <message-counter-history-day-limit>10</message-counter-history-day-limit>
+            <address-full-policy>BLOCK</address-full-policy>
+         </address-setting>
+      </address-settings>
+   </core>
+</configuration>

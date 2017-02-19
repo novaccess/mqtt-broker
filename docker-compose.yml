@@ -1,0 +1,30 @@
+version: '2.0'
+  
+services:
+
+  #
+  # MQTT Broker
+  #
+  artemis:
+    image: "novaccess/mqtt-broker:latest"
+    container_name: mqtt-broker
+    volumes:
+      - artemis_data:/var/lib/artemis/data
+      - artemis_tmp:/var/lib/artemis/tmp
+    ports:
+      - "1883:1883"
+    hostname: mqtt-broker
+    command: ["/var/lib/artemis/bin/artemis",  "run"]
+    entrypoint: /docker-entrypoint.sh
+    build:
+      context: .
+      args:
+        version: 1.5.2
+
+
+#
+# Volumes
+#    
+volumes:
+ artemis_data:
+ artemis_tmp:
