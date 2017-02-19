@@ -38,11 +38,11 @@ VOLUME ["/var/lib/artemis/tmp"]
 
 WORKDIR /var/lib/artemis/bin
 
-EXPOSE 61616
+EXPOSE 1883
 
 COPY docker-entrypoint.sh /
 
-HEALTHCHECK CMD (nc localhost 61616 < /dev/null) > /dev/null 2>&1 || exit 1
+HEALTHCHECK CMD (nc localhost 1883 < /dev/null) > /dev/null 2>&1 || exit 1
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 CMD ["artemis-server"]
