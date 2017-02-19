@@ -1,7 +1,5 @@
 # MQTT broker docker image
 
-## Status
-
 ## Requirements
 
 | Dependency | Version | Description |
